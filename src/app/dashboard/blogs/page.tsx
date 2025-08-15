@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { PlusCircle } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useBlogs } from "@/hooks/useBlogs";
 import {
   Card,
   CardContent,
@@ -14,28 +15,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useActionState } from "react";
-import { updateBlogPost, getPaginatedBlogPosts } from "@/actions/blog";
-import { toast } from "@/hooks/useToast";
-import { useSearchParams, useRouter } from "next/navigation";
-import {
   Pagination,
   PaginationContent,
   PaginationItem,
@@ -45,81 +24,18 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 
-import type { BlogPost } from "@/types/blog";
-
 export default function BlogsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+
   const currentPage = Number(searchParams.get("page")) || 1;
-  const postsPerPage = 6; // Number of posts per page
+  const postsPerPage = 6;
 
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const { getBlogsList } = useBlogs(currentPage, postsPerPage);
+  const { data, isLoading } = getBlogsList;
 
-  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const [updateState, updateFormAction, isUpdatePending] = useActionState(
-    updateBlogPost,
-    null
-  );
-
-  // Fetch paginated blog posts
-  useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      const { posts, totalPages: fetchedTotalPages } =
-        await getPaginatedBlogPosts({
-          page: currentPage,
-          limit: postsPerPage,
-        });
-      setBlogPosts(posts);
-      setTotalPages(fetchedTotalPages);
-      setLoading(false);
-    };
-    fetchPosts();
-  }, [currentPage, postsPerPage]); 
-
-  // Handle update 
-  useEffect(() => {
-    console.log("useeffect called")
-    if (updateState?.success) {
-      console.log("update successfull")
-      toast({
-        title: "Success!",
-        description: updateState.message,
-        variant: "default",
-      });
-      setIsModalOpen(false); // Close modal on success
-      // Re-fetch posts to reflect changes (update state directly or revalidate)
-      const fetchPosts = async () => {
-        const { posts, totalPages: fetchedTotalPages } =
-          await getPaginatedBlogPosts({
-            page: currentPage,
-            limit: postsPerPage,
-          });
-        setBlogPosts(posts);
-        setTotalPages(fetchedTotalPages);
-      };
-      fetchPosts();
-    } else if (updateState?.success === false) {
-      console.log("else if, false")
-      toast({
-        title: "Error!",
-        description: updateState.message,
-        variant: "destructive",
-      });
-    }
-    else{
-      console.log("error")
-    }
-  }, [updateState, currentPage, postsPerPage]);
-
-  const handleEditClick = (post: BlogPost) => {
-    setEditingPost(post);
-    setIsModalOpen(true);
-  };
+  const blogPosts = data?.posts || [];
+  const totalPages = data?.totalPages || 1;
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -129,7 +45,7 @@ export default function BlogsPage() {
 
   const renderPaginationItems = () => {
     const items = [];
-    const maxPagesToShow = 5; // Number of page links to show directly
+    const maxPagesToShow = 5;
     const startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
     const endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
 
@@ -177,6 +93,7 @@ export default function BlogsPage() {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="font-semibold text-lg md:text-2xl">All Blogs</h1>
         <Button asChild size="sm" variant="blue">
@@ -186,7 +103,9 @@ export default function BlogsPage() {
           </Link>
         </Button>
       </div>
-      {loading ? (
+
+      {/* Blog list */}
+      {isLoading ? (
         <div className="text-center text-muted-foreground">
           Loading blog posts...
         </div>
@@ -215,11 +134,7 @@ export default function BlogsPage() {
                     </p>
                   </CardContent>
                   <CardFooter className="flex justify-between items-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEditClick(post)}
-                    >
+                    <Button variant="ghost" size="sm">
                       Edit
                     </Button>
                   </CardFooter>
@@ -232,6 +147,7 @@ export default function BlogsPage() {
             )}
           </div>
 
+          {/* Pagination */}
           {totalPages > 1 && (
             <Pagination>
               <PaginationContent>
@@ -266,68 +182,6 @@ export default function BlogsPage() {
             </Pagination>
           )}
         </>
-      )}
-
-      {editingPost && (
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Edit Blog Post</DialogTitle>
-              <DialogDescription>
-                Make changes to your blog post here. Click save when you're
-                done.
-              </DialogDescription>
-            </DialogHeader>
-            <form action={updateFormAction} className="grid gap-4 py-4">
-              <input type="hidden" name="id" value={editingPost.id} />
-              <div className="grid gap-2">
-                <Label htmlFor="edit-title">Title</Label>
-                <Input
-                  id="edit-title"
-                  name="title"
-                  defaultValue={editingPost.title}
-                  placeholder="Enter blog post title"
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-content">Content</Label>
-                <Textarea
-                  id="edit-content"
-                  name="content"
-                  defaultValue={editingPost.content}
-                  placeholder="Write your blog post content here..."
-                  rows={10}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-status">Status</Label>
-                <Select
-                  name="status"
-                  defaultValue={editingPost.status}
-                  required
-                >
-                  <SelectTrigger id="edit-status" className="w-[180px]">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Draft">Draft</SelectItem>
-                    <SelectItem value="Published">Published</SelectItem>
-                    <SelectItem value="Pending Review">
-                      Pending Review
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <DialogFooter>
-                <Button variant={"blue"} type="submit" disabled={isUpdatePending}>
-                  {isUpdatePending ? "Saving Changes..." : "Save Changes"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
       )}
     </div>
   );

@@ -1,19 +1,19 @@
 import api from "@/lib/api"
 
-import type { Editor, CreateEditorData } from "@/types/editor"
+import type { BlogPost} from "@/types/blog"
 
-export const editorApi = {
-  getBlogs: async (): Promise<Editor[]> => {
+export const blogService = {
+  getBlogs: async (): Promise<BlogPost[]> => {
     const response = await api.get("/api/v1/blogs/")
     return response.data
   },
 
-  createBlog: async (data: CreateEditorData): Promise<Editor> => {
+  createBlog: async (data: BlogPost): Promise<BlogPost> => {
     const response = await api.post("/api/v1/blogs/", data)
     return response.data
   },
 
-  updateBlog: async (id: string, data: CreateEditorData): Promise<Editor> => {
+  updateBlog: async (id: string, data: BlogPost): Promise<BlogPost> => {
     const response = await api.put(`/api/v1/blogs/${id}/`, data)
     return response.data
   },

@@ -3,39 +3,11 @@ import { PlusCircle, Code, Layout, Database, Cloud } from "lucide-react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { services } from "@/data/mockServicesList"
 
-const services = [
-  {
-    id: "1",
-    title: "Web Development",
-    description: "Building modern, responsive, and scalable web applications.",
-    icon: Code,
-    status: "Active",
-  },
-  {
-    id: "2",
-    title: "UI/UX Design",
-    description: "Crafting intuitive and engaging user interfaces and experiences.",
-    icon: Layout,
-    status: "Active",
-  },
-  {
-    id: "3",
-    title: "Database Management",
-    description: "Designing and optimizing robust database solutions.",
-    icon: Database,
-    status: "Active",
-  },
-  {
-    id: "4",
-    title: "Cloud Hosting & Deployment",
-    description: "Setting up and managing cloud infrastructure for your applications.",
-    icon: Cloud,
-    status: "Inactive",
-  },
-]
 
 export default function ServicesPage() {
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">

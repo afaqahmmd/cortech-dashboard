@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { editorApi } from "@/services/editorService";
+import { editorService } from "@/services/editors";
 import { mockEditors } from "@/data/mockEditorsList";
 import type { Editor } from "@/types/editor";
 
@@ -8,14 +8,14 @@ export const useEditors = () => {
 
   const getEditorsList = useQuery<Editor[]>({
     queryKey: ["editors"],
-    queryFn: editorApi.getEditors,
+    queryFn: editorService.getEditors,
     initialData: mockEditors,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: 1,
   });
 
   const addEditor = useMutation({
-    mutationFn: editorApi.createEditor,
+    mutationFn: editorService.createEditor,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["editors"] });
     },
@@ -28,14 +28,14 @@ export const useEditors = () => {
     }: {
       id: string;
       data: { name: string; email: string; role: Editor["role"] };
-    }) => editorApi.updateEditor(id, data),
+    }) => editorService.updateEditor(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["editors"] });
     },
   });
 
   const removeEditor = useMutation({
-    mutationFn: editorApi.deleteEditor,
+    mutationFn: editorService.deleteEditor,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["editors"] });
     },
