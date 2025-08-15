@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users } from "lucide-react"
-import type { Editor } from "@/services/editor-api"
+import type { Editor } from "@/types/editor"
 
 interface TeamOverviewProps {
   editors: Editor[]

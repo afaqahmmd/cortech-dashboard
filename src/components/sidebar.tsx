@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import Link from "next/link"
+import Link from "next/link";
 import {
   Home,
   FileText,
@@ -12,11 +12,17 @@ import {
   MessageSquare,
   BookOpen,
   Briefcase,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Sidebar,
   SidebarContent,
@@ -30,8 +36,8 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import Image from "next/image"
+} from "@/components/ui/sidebar";
+import Image from "next/image";
 
 const navigationItems = [
   {
@@ -67,7 +73,7 @@ const navigationItems = [
     href: "/dashboard/media",
     icon: ImageIcon,
   },
-  
+
   {
     title: "Editors",
     href: "/dashboard/editors",
@@ -78,7 +84,7 @@ const navigationItems = [
     href: "/dashboard/settings",
     icon: Settings,
   },
-]
+];
 
 export function LeftSidebar() {
   return (
@@ -89,15 +95,17 @@ export function LeftSidebar() {
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
+                  {/*
                   <Image
                   src='/cortechsols_logo.png'
                   alt="logo"
                   width={30}
                   height={30}
                   />
+                 */}
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">CortechSols Dashboard</span>
+                  <span className="font-semibold">Dashboard</span>
                   <span className="text-xs text-muted-foreground">v1.0.0</span>
                 </div>
               </Link>
@@ -145,8 +153,8 @@ export function LeftSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-    
+
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

@@ -14,13 +14,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2 } from "lucide-react"
-import type { Editor } from "@/services/editor-api"
+import type { Editor,CreateEditorData } from "@/types/editor"
 
 interface EditEditorDialogProps {
   editor: Editor | null
   isOpen: boolean
   onClose: () => void
-  onSave: (editor: { name: string; email: string; role: Editor["role"] }) => Promise<void>
+  onSave: (editor: CreateEditorData) => void
 }
 
 export function EditEditorDialog({ editor, isOpen, onClose, onSave }: EditEditorDialogProps) {
@@ -88,8 +88,8 @@ export function EditEditorDialog({ editor, isOpen, onClose, onSave }: EditEditor
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Editor">Editor</SelectItem>
-                <SelectItem value="Senior Editor">Senior Editor</SelectItem>
-                <SelectItem value="Managing Editor">Managing Editor</SelectItem>
+                <SelectItem disabled value="Senior Editor">Senior Editor</SelectItem>
+                <SelectItem disabled value="Managing Editor">Managing Editor</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -98,7 +98,7 @@ export function EditEditorDialog({ editor, isOpen, onClose, onSave }: EditEditor
           <Button variant="outline" onClick={onClose} disabled={submitting}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={submitting || !formData.name || !formData.email}>
+          <Button variant={"blue"} onClick={handleSubmit} disabled={submitting || !formData.name || !formData.email}>
             {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save Changes
           </Button>

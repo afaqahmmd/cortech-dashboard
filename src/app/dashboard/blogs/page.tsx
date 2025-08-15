@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import { useActionState } from "react";
 import { updateBlogPost, getPaginatedBlogPosts } from "@/actions/blog";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/useToast";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Pagination,
@@ -45,14 +45,7 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 
-interface BlogPost {
-  id: string;
-  title: string;
-  description: string;
-  content: string;
-  date: string;
-  status: "Published" | "Draft" | "Pending Review";
-}
+import type { BlogPost } from "@/types/blog";
 
 export default function BlogsPage() {
   const searchParams = useSearchParams();

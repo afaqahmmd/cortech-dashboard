@@ -1,35 +1,24 @@
 import api from "@/lib/api"
 
-export interface Editor {
-  id: string
-  name: string
-  email: string
-  role: "Editor"
-}
-
-export interface CreateEditorData {
-  name: string
-  email: string
-  role: Editor["role"]
-}
+import type { Editor, CreateEditorData } from "@/types/editor"
 
 export const editorApi = {
   getEditors: async (): Promise<Editor[]> => {
-    const response = await api.get("/editors/")
+    const response = await api.get("/api/v1/editors/")
     return response.data
   },
 
   createEditor: async (data: CreateEditorData): Promise<Editor> => {
-    const response = await api.post("/editors/", data)
+    const response = await api.post("/api/v1/editors/", data)
     return response.data
   },
 
   updateEditor: async (id: string, data: CreateEditorData): Promise<Editor> => {
-    const response = await api.put(`/editors/${id}/`, data)
+    const response = await api.put(`/api/v1/editors/${id}/`, data)
     return response.data
   },
 
   deleteEditor: async (id: string): Promise<void> => {
-    await api.delete(`/editors/${id}/`)
+    await api.delete(`/api/v1/editors/${id}/`)
   },
 }
