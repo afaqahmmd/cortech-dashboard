@@ -1,8 +1,15 @@
 export interface BlogPost {
-  id: string;
+  id: number;
   title: string;
-  description: string;
-  content: string;
-  date: string;
-  status: "Published" | "Draft" | "Pending Review";
+  image: string | null;
+  published: boolean;
+  created_at: string;
+  updated_at: string;
+  tags: {
+    id: number;
+    name: string;
+  }[];
+  summary: string;
+  author_email: string;
+  slug: string;
 }

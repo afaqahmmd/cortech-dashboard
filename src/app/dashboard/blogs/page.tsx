@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PlusCircle } from "lucide-react";
+import { Edit, PlusCircle, Trash2 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useBlogs } from "@/hooks/useBlogs";
 import {
@@ -23,6 +23,11 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
+import Image from "next/image";
+import { useState } from "react";
+import { BlogPost } from "@/types/blog";
+import { DeleteBlogModal } from "@/components/blog/DeleteBlogModal";
+import { EditBlogModal } from "@/components/blog/EditBlogModal";
 
 export default function BlogsPage() {
   const searchParams = useSearchParams();
@@ -30,12 +35,15 @@ export default function BlogsPage() {
 
   const currentPage = Number(searchParams.get("page")) || 1;
   const postsPerPage = 6;
-
   const { getBlogsList } = useBlogs(currentPage, postsPerPage);
   const { data, isLoading } = getBlogsList;
-
   const blogPosts = data?.posts || [];
   const totalPages = data?.totalPages || 1;
+
+  const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deletingBlog, setDeletingBlog] = useState<BlogPost | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -111,31 +119,61 @@ export default function BlogsPage() {
         </div>
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {blogPosts.length > 0 ? (
-              blogPosts.map((post) => (
+              blogPosts.map((post:BlogPost) => (
                 <Card key={post.id}>
+                  <div className="relative overflow-hidden">
+                    <Image
+                      src={post.image ?? "/vercel.svg?height=240&width=400"}
+                      alt="img"
+                      width={400}
+                      height={240}
+                      className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-3">
                       {post.title}
-                      <Badge
-                        variant={
-                          post.status === "Published" ? "default" : "secondary"
-                        }
-                      >
-                        {post.status}
+                      <Badge variant={post.published ? "default" : "secondary"}>
+                        {post.published ? "Published" : "Draft"}
                       </Badge>
                     </CardTitle>
-                    <CardDescription>{post.description}</CardDescription>
+                    <CardDescription>
+                      {post.summary ?? "No description available."}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
-                      Published on: {post.date}
+                      Published on:{" "}
+                      {new Date(post.created_at).toLocaleDateString()}
                     </p>
                   </CardContent>
-                  <CardFooter className="flex justify-between items-center">
-                    <Button variant="ghost" size="sm">
+                  <CardFooter className="pt-0 flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setEditingBlog(post);
+                        setIsModalOpen(true);
+                      }}
+                      className="text-gray-600 hover:text-gray-600"
+                    >
+                      <Edit className="w-3.5 h-3.5 text-gray-600 " />
                       Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setDeletingBlog(post);
+                        setIsDeleteModalOpen(true);
+                      }}
+                      className="text-red-500 hover:text-red-500"
+                    >
+                      <Trash2 color="red" className="w-3.5 h-3.5 " />
+                      Delete
                     </Button>
                   </CardFooter>
                 </Card>
@@ -182,6 +220,21 @@ export default function BlogsPage() {
             </Pagination>
           )}
         </>
+      )}
+
+      {editingBlog && (
+        <EditBlogModal
+          blog={editingBlog}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
+      {deletingBlog && (
+        <DeleteBlogModal
+          blog={deletingBlog}
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+        />
       )}
     </div>
   );

@@ -1,79 +1,106 @@
-"use client"
+"use client";
 
-import { useActionState } from "react"
-import { createBlogPost } from "@/actions/blog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { toast } from "@/hooks/useToast"
-import { useEffect } from "react"
-import { redirect } from "next/navigation"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useServices } from "@/hooks/useServices";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/useToast";
 
-export default function NewBlogPostPage() {
-  const [state, formAction, isPending] = useActionState(createBlogPost, null)
+export default function AddBlogPage() {
+  const router = useRouter();
+  const { addService } = useServices();
 
-  useEffect(() => {
-    if (state?.success) {
-      toast({
-        title: "Success!",
-        description: state.message,
-        variant: "default",
-      })
-      redirect("/dashboard/blogs") // Redirect on success
-    } else if (state?.success === false) {
-      toast({
-        title: "Error!",
-        description: state.message,
-        variant: "destructive",
-      })
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [slug, setSlug] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!title || !description || !slug) {
+      toast({ title: "All fields are required", variant: "destructive" });
+      return;
     }
-  }, [state])
+
+    try {
+      await addService.mutateAsync({
+        title,
+        description,
+       slug,
+      });
+      toast({ title: "Service created successfully!" });
+      router.push("/dashboard/services"); // Redirect to services
+    } catch (error: any) {
+      toast({
+        title: "Failed to create service",
+        description: error?.message || "Something went wrong",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="font-semibold text-lg md:text-2xl">Create New Service Post</h1>
-      <Card>
-        <CardHeader>
-          <CardTitle>Service Post Details</CardTitle>
-          <CardDescription>Fill in the details for your new service post.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form action={formAction} className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="title">Title</Label>
-              <Input id="title" name="title" placeholder="Enter service post title" required />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="content">Content</Label>
-              <Textarea
-                id="content"
-                name="content"
-                placeholder="Write your service post content here..."
-                rows={10}
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="status">Status</Label>
-              <Select name="status" defaultValue="Draft" required>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Draft">Active</SelectItem>
-                  <SelectItem value="Published">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button className="w-fit" variant={"blue"} type="submit" disabled={isPending}>
-              {isPending ? "Saving..." : "Save Service Post"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+    <div className="w-full mx-auto p-4">
+      <h1 className="text-2xl font-semibold mb-4">Add New Service</h1>
+
+      <form className="grid gap-4" onSubmit={handleSubmit}>
+        {/* Title */}
+        <div className="grid gap-2">
+          <Label htmlFor="title">Title</Label>
+          <Input
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter service title"
+            required
+          />
+        </div>
+
+        {/* Content */}
+        <div className="grid gap-2">
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Write your service description..."
+            rows={10}
+            required
+          />
+        </div>
+
+        {/* Slug */}
+        <div className="grid gap-2">
+          <Label htmlFor="slug">Slug</Label>
+          <Input
+            id="title"
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+            placeholder="Enter service slug"
+            required
+          />
+        </div>
+
+        {/* Submit button */}
+        <Button
+          type="submit"
+          disabled={addService.isPending}
+          className="w-fit"
+          variant={"blue"}
+        >
+          {addService.isPending ? "Creating..." : "Create Service"}
+        </Button>
+      </form>
     </div>
-  )
+  );
 }

@@ -9,9 +9,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginSchemaType } from "@/schemas/loginSchema";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Component() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -23,8 +26,7 @@ export default function Component() {
 
   const onSubmit = async (data: LoginSchemaType) => {
     try {
-      console.log("Login data:", data);
-
+      setLoading(true);
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/login/`,
         {
@@ -34,20 +36,16 @@ export default function Component() {
       );
 
       const token = response.data.token;
+      toast.success("Login successful");
 
-      if (token) {
-        localStorage.setItem("accessToken", token);
-        console.log("Token stored in localStorage:", token);
-        router.replace("/dashboard");
-      } else {
-        console.error("Token not found in API response");
-      }
-    } catch (error: any) {
-      // console.error("Login failed:", error.response?.data || error.message);
-      // temporarily store token and redirect
-      localStorage.setItem("accessToken", "adfadifjklajdf");
+      localStorage.setItem("accessToken", token);
+      setLoading(false);
       router.replace("/dashboard");
-      
+    } catch (error: any) {
+      setLoading(false);
+      console.log("Login failed:", error.response?.data.message );
+      toast.error(error.response?.data.message);
+      // temporarily store token and redirect
     }
   };
 
@@ -99,8 +97,13 @@ export default function Component() {
             </div>
 
             {/* Submit */}
-            <Button variant="blue" type="submit" className="w-full">
-              Login
+            <Button
+              disabled={loading}
+              variant="blue"
+              type="submit"
+              className="w-full"
+            >
+              {loading ? "Logging in..." : "Login"}
             </Button>
           </form>
         </div>

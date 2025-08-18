@@ -3,7 +3,7 @@ import { blogService } from "@/services/blogs";
 import { BlogPost } from "@/types/blog";
 import { getPaginatedBlogPosts } from "@/actions/blog";
 
-export const useBlogs = (page: number, limit: number) => {
+export const useBlogs = (page: number = 1, limit: number = 6) => {
   const queryClient = useQueryClient();
 
   const getBlogsList = useQuery({
@@ -11,9 +11,10 @@ export const useBlogs = (page: number, limit: number) => {
     queryFn: async () => {
       try {
         const response = await blogService.getBlogs();
+        console.log("response for get blogs list:", response.data);
         return {
-          posts: response.slice((page - 1) * limit, page * limit), // manual pagination if backend doesn't do it
-          totalPages: Math.ceil(response.length / limit),
+          posts: response.data.slice((page - 1) * limit, page * limit), // manual pagination if backend doesn't do it
+          totalPages: Math.ceil(response.data.length / limit),
         };
       } catch (error) {
         console.error("API failed, using dummy blog posts...", error);

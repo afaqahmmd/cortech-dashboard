@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
-import { EditorTable } from "@/components/editors/editorTable";
-import { AddEditorDialog } from "@/components/editors/addModal";
-import { EditEditorDialog } from "@/components/editors/editModal";
-import { TeamOverview } from "@/components/editors/teamOverview";
+import { EditorTable } from "@/components/editors/EditorTable";
+import { AddEditorDialog } from "@/components/editors/AddModal";
+import { EditEditorDialog } from "@/components/editors/EditModal";
+import { TeamOverview } from "@/components/editors/TeamOverview";
 import type { Editor, CreateEditorData } from "@/types/editor";
 import { useEditors } from "@/hooks/useEditors";
 
@@ -97,7 +97,7 @@ export default function EditorManagement() {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-6xl space-y-6">
+      <div className="mx-auto max-w-full space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="space-y-1">

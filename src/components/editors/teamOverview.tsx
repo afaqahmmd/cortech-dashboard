@@ -24,11 +24,11 @@ export function TeamOverview({ editors }: TeamOverviewProps) {
             <span className="text-muted-foreground ml-1">Total Editors</span>
           </div>
           <div>
-            <span className="font-medium">{editors.filter((e) => e.role === "Managing Editor").length}</span>
+            <span className="font-medium">0</span>
             <span className="text-muted-foreground ml-1">Managing Editors</span>
           </div>
           <div>
-            <span className="font-medium">{editors.filter((e) => e.role === "Senior Editor").length}</span>
+            <span className="font-medium">0</span>
             <span className="text-muted-foreground ml-1">Senior Editors</span>
           </div>
         </div>

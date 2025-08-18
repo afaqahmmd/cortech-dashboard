@@ -61,7 +61,10 @@ export function MediaUploadForm() {
   }, []);
 
   const handleFiles = useCallback(
+    
     async (files: FileList) => {
+    console.log("inside handle files")
+
       const validFiles = Array.from(files).filter(
         (file) =>
           file.type.startsWith("image/") || file.type.startsWith("video/")
@@ -132,7 +135,8 @@ export function MediaUploadForm() {
     );
   }, []);
 
-  const handleSubmit = useCallback(
+  const handleSubmit = 
+  useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
 

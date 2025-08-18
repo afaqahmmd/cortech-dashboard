@@ -2,7 +2,9 @@ import DashboardWidget from "@/components/dashboard/DashboardWidget";
 import QuickDraft from "@/components/dashboard/QuickDraft";
 import RecentPosts from "@/components/dashboard/RecentPosts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { mockEditors } from "@/data/mockEditorsList";
 import { Users, FileText, BookOpen, Briefcase } from "lucide-react";
+import {services} from "@/data/mockServicesList"
 
 export default function DashboardOverviewPage() {
   return (
@@ -14,7 +16,7 @@ export default function DashboardOverviewPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2,350</div>
+            <div className="text-2xl font-bold">--</div>
             <p className="text-xs text-muted-foreground">
               {"+20.1%"} from last month
             </p>
@@ -26,7 +28,7 @@ export default function DashboardOverviewPage() {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">75</div>
+            <div className="text-2xl font-bold">30</div>
             <p className="text-xs text-muted-foreground">
               {"+15%"} from last month
             </p>
@@ -40,7 +42,7 @@ export default function DashboardOverviewPage() {
             <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">25</div>
+            <div className="text-2xl font-bold">{services.length}</div>
             <p className="text-xs text-muted-foreground">
               {"+8%"} from last month
             </p>
@@ -52,7 +54,7 @@ export default function DashboardOverviewPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">150</div>
+            <div className="text-2xl font-bold">{mockEditors.length}</div>
             <p className="text-xs text-muted-foreground">
               {"+5%"} from last month
             </p>

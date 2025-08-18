@@ -1,75 +1,63 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { type BlogPost } from "@/types/blog";
 
-type Status = "Published" | "Draft" | "Pending Review";
-
-// Simulate database fetching for demo,
-// will be removed after backend connection with frontend
-
-interface BlogPost {
-  id: string;
-  title: string;
-  description: string;
-  content: string;
-  date: string;
-  status: "Published" | "Draft" | "Pending Review";
-}
-
-// Generate mock blog posts for pagination
+// Simulate database fetching for demo (will be replaced with real API/DB)
 const generateDummyBlogPosts = (count: number): BlogPost[] => {
   const posts: BlogPost[] = [];
 
-  const statuses: Status[] = ["Published", "Draft", "Pending Review"];
   for (let i = 1; i <= count; i++) {
     posts.push({
-      id: String(i),
+      id: i,
       title: `Blog Post Title ${i}`,
-      description: `This is a short description for blog post number ${i}. It covers various topics.`,
-      content: `Full content for blog post ${i}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`,
-      date: new Date(Date.now() - i * 86400000).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }),
-      status: statuses[Math.floor(Math.random() * statuses.length)],
+      slug: `blog-post-${i}`,
+      image: null,
+      published: i % 2 === 0, // alternate true/false
+      created_at: new Date(Date.now() - i * 86400000).toISOString(),
+      updated_at: new Date(Date.now() - i * 86400000).toISOString(),
+      tags: [
+        { id: 1, name: "New Technology" },
+        { id: 2, name: "Artificial Intelligence" },
+      ],
+      summary: `This is a short summary for blog post number ${i}.`,
+      author_email: "admin@gmail.com",
     });
   }
   return posts;
 };
 
-const dummyBlogPosts: BlogPost[] = generateDummyBlogPosts(20); // Generate 35 dummy posts
+const dummyBlogPosts: BlogPost[] = generateDummyBlogPosts(20);
 
 export async function createBlogPost(prevState: any, formData: FormData) {
   const title = formData.get("title") as string;
-  const content = formData.get("content") as string;
-  const status = formData.get("status") as BlogPost["status"];
+  const summary = formData.get("summary") as string;
+  const published = formData.get("published") === "true"; // coming from form as string
+  const slug = formData.get("slug") as string;
 
-  if (!title || !content || !status) {
-    return { success: false, message: "All fields are required." };
+  if (!title || !slug) {
+    return { success: false, message: "Title and slug are required." };
   }
 
   // Simulate API call delay
   await new Promise((resolve) => setTimeout(resolve, 200));
 
-  // In a real app, you'd save this to a database
   const newPost: BlogPost = {
-    id: String(dummyBlogPosts.length + 1), // Simple ID generation
+    id: dummyBlogPosts.length + 1,
     title,
-    description:
-      content.substring(0, Math.min(content.length, 100)) +
-      (content.length > 100 ? "..." : ""),
-    content,
-    date: new Date().toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }),
-    status,
+    slug,
+    image: null,
+    published,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    tags: [],
+    summary: summary || null,
+    author_email: "admin@gmail.com",
   };
-  dummyBlogPosts.unshift(newPost); // Would push to a real array/DB, unshift to show at top
 
-  revalidatePath("/dashboard/blogs"); // Revalidate the blogs page to show new data (if using a real DB)
+  dummyBlogPosts.unshift(newPost);
+
+  revalidatePath("/dashboard/blogs");
 
   return {
     success: true,
@@ -78,34 +66,34 @@ export async function createBlogPost(prevState: any, formData: FormData) {
 }
 
 export async function updateBlogPost(prevState: any, formData: FormData) {
-  console.log("inside update blog post function")
-  const id = formData.get("id") as string;
+  const id = Number(formData.get("id"));
   const title = formData.get("title") as string;
-  const content = formData.get("content") as string;
-  const status = formData.get("status") as BlogPost["status"];
+  const summary = formData.get("summary") as string;
+  const published = formData.get("published") === "true";
+  const slug = formData.get("slug") as string;
 
-  if (!id || !title || !content || !status) {
-    return { success: false, message: "All fields are required." };
+  if (!id || !title || !slug) {
+    return { success: false, message: "ID, title and slug are required." };
   }
 
-  // Simulate API call delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 300));
 
-  // In a real app, you'd find and update this in your database
   const existingPostIndex = dummyBlogPosts.findIndex((post) => post.id === id);
+
   if (existingPostIndex !== -1) {
-    // dummyBlogPosts[existingPostIndex] = {
-    //   ...dummyBlogPosts[existingPostIndex],
-    //   title,
-    //   description: content.substring(0, Math.min(content.length, 100)) + (content.length > 100 ? "..." : ""),
-    //   content,
-    //   status,
-    // };
+    dummyBlogPosts[existingPostIndex] = {
+      ...dummyBlogPosts[existingPostIndex],
+      title,
+      slug,
+      summary: summary || null,
+      published,
+      updated_at: new Date().toISOString(),
+    };
   } else {
     return { success: false, message: "Blog post not found." };
   }
 
-  revalidatePath("/dashboard/blogs"); // Revalidate the blogs page to show updated data (if using a real DB)
+  revalidatePath("/dashboard/blogs");
 
   return {
     success: true,
@@ -126,7 +114,6 @@ export async function getPaginatedBlogPosts({
   const totalPosts = dummyBlogPosts.length;
   const totalPages = Math.ceil(totalPosts / limit);
 
-  // Simulate API call delay
   await new Promise((resolve) => setTimeout(resolve, 300));
 
   return {

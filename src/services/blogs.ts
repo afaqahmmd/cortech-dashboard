@@ -1,6 +1,6 @@
 import api from "@/lib/api"
 
-import type { BlogPost} from "@/types/blog"
+import { type BlogPost } from "@/types/blog"
 
 export const blogService = {
   getBlogs: async (): Promise<BlogPost[]> => {
@@ -8,8 +8,9 @@ export const blogService = {
     return response.data
   },
 
-  createBlog: async (data: BlogPost): Promise<BlogPost> => {
+  createBlog: async (data:Partial<BlogPost>): Promise<BlogPost> => {
     const response = await api.post("/api/v1/blogs/", data)
+    console.log("create blog:",response.data)
     return response.data
   },
 

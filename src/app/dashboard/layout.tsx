@@ -31,6 +31,11 @@ export default function DashboardLayout({
 }) {
   const [queryClient] = useState(() => new QueryClient());
 
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    window.location.href = "/login";
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <SidebarProvider defaultOpen={true}>
@@ -72,9 +77,7 @@ export default function DashboardLayout({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>Support</DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <Link href="/login">
-                    <DropdownMenuItem>Logout</DropdownMenuItem>
-                  </Link>
+                    <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </header>
